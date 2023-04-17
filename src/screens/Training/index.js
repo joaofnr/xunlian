@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FlatList, View, Text, StyleSheet, Switch } from "react-native";
+import { FlatList, View, Text, StyleSheet, Switch, TouchableOpacity } from "react-native";
 
 import Header from './components/Header'
 import Lesson from './components/Lesson'
@@ -8,53 +8,53 @@ import mainStyles from "../../styles/main";
 
 export default function Training(){
     const [lessonsList, setLessonsList] = useState([...lessons['001'].list])
-    const HeaderList = () => {
-        return <><Header /></>
-    }
-    const FooterList = () => {
-        return <><Lesson /></>
-    }
+    const [currentLesson, setCurrentLesson] = useState(lessons['001'].list[0])
 
+    /*
+    // consecutive lesson training switcher function
     const switchForm = (index, enable) => {
-        const getList = lessonsList
-        const item = getList[index]
-        item.enabled = enable
-        setLessonsList([...getList])
+        setLessonsList(prevList => {
+            const updatedList = [...prevList];
+            updatedList[index].enabled = enable;
+            return updatedList;
+        });
+    }*/
+
+    const previousLesson = () => {
+        const index = lessonsList.findIndex(item => item.name === currentLesson.name);
+        if(index === 0) return;
+        setCurrentLesson(lessonsList[index - 1]);
     }
 
-    return <View>
-        <HeaderList />
+    const nextLesson = () => {
+        const index = lessonsList.findIndex(item => item.name === currentLesson.name);
+        if(index === lessonsList.length - 1) return;
+        setCurrentLesson(lessonsList[index + 1]);
+    }
+
+    return (
         <FlatList 
             style={[mainStyles.container, styles.list]}
             data={lessonsList}
+            keyExtractor={(item, index) => index.toString()}
             renderItem={
                 ({ item, index }) => {
                     return <View style={styles.listItem}>
-                        <Switch
+                        {/*
+                        // switcher for consecutive lessons training
+                         <Switch
                             onValueChange={(newValue) => switchForm(index, newValue)}
-                            value={item.enabled} />
-                        <Text style={styles.listItem_text}>{item.name}</Text>
+                            value={item.enabled} /> */}
+                            <TouchableOpacity onPress={()=>setCurrentLesson(item)}>
+                                <Text style={styles.listItem_text}>{item.name}</Text>
+                            </TouchableOpacity>
                     </View>
                 }
             }
+            ListHeaderComponent={<Header />}
+            ListFooterComponent={<Lesson current={currentLesson} previous={previousLesson} next={nextLesson} />}
         />
-        <FooterList />
-    </View>
-
-    // return <FlatList 
-    //     style={[mainStyles.container, styles.list]}
-    //     data={lessons['001'].list}
-    //     renderItem={
-    //         ({ item }) => {
-    //             return <View style={styles.listItem}>
-    //                 <Switch />
-    //                 <Text style={styles.listItem_text}>{item.name}</Text>
-    //             </View>
-    //         }
-    //     }
-    //     ListHeaderComponent={HeaderList}
-    //     ListFooterComponent={FooterList}
-    // />
+    )
 }
 
 const styles = StyleSheet.create({
@@ -65,8 +65,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#CCC',
         flexDirection: 'row',
         alignItems: 'center',
-        lineHeight: 28,
-        padding: 8
+        paddingVertical: 14,
+        paddingHorizontal: 8
     },
     listItem_text: {
         fontSize: 14,

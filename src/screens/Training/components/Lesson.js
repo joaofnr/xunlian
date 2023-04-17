@@ -1,36 +1,55 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {Text, View, TouchableOpacity, StyleSheet} from 'react-native'
 import mainStyles from "../../../styles/main";
+import { tempoParaSegundos } from "../../../common/utils/time"
 
-export default function Lesson(){
-    return <>
-    <View style={[mainStyles.container, styles.lessonContainer]}>
-        <TouchableOpacity>
-            <Text>&lt; Anterior</Text>
-        </TouchableOpacity>
-        <View style={mainStyles.textCenter}>
-            <Text style={[mainStyles.textCenter, mainStyles.textBigger, styles.name]}>Aplicações Fu Xi Xuan</Text>
-            <Text style={[mainStyles.textCenter, mainStyles.textGiant, styles.timer]}>01:30</Text>
-            <TouchableOpacity style={[mainStyles.button, styles.button]}>
-                <Text style={[mainStyles.textCenter, mainStyles.buttonText]}>Começar</Text>
+export default function Lesson({current, previous, next}){    
+    if(!current) return <></>
+
+    const [timer, setTimer] = useState()
+    const [started, setStarted] = useState(false)
+
+    const handleStartButton = () => {
+        setStarted((current) => !current)
+    }
+    
+    return (
+        <View style={[mainStyles.container, styles.lessonContainer]}>
+            <TouchableOpacity onPress={previous}>
+                <Text>&lt; Anterior</Text>
             </TouchableOpacity>
-            <View style={styles.levelContainer}>
-                <TouchableOpacity style={[mainStyles.button]}>
-                    <Text style={[mainStyles.textCenter, mainStyles.buttonText]}>Fácil</Text>
+            <View style={mainStyles.textCenter}>
+                <View>
+                    <Text style={[mainStyles.textCenter, mainStyles.textBigger, styles.name]}>{current.name}</Text>
+                    <Text style={[mainStyles.textCenter, mainStyles.textGiant, styles.timer]}>{timer}</Text>
+                </View>
+
+                <TouchableOpacity style={[mainStyles.button, styles.button]}
+                    onPress={handleStartButton}>
+                    <Text style={[mainStyles.textCenter, mainStyles.buttonText]}>Começar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[mainStyles.button]}>
-                    <Text style={[mainStyles.textCenter, mainStyles.buttonText]}>Normal</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[mainStyles.button]}>
-                    <Text style={[mainStyles.textCenter, mainStyles.buttonText]}>Difícil</Text>
-                </TouchableOpacity>
+
+                <View style={styles.levelContainer}>
+                    <TouchableOpacity disabled={started} style={[mainStyles.button]}
+                        onPress={() => setTimer(tempoParaSegundos(current.timers.easy))}>
+                        <Text style={[mainStyles.textCenter, mainStyles.buttonText]}>Fácil</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity disabled={started} style={[mainStyles.button]}
+                        onPress={() => setTimer(tempoParaSegundos(current.timers.normal))}>
+                        <Text style={[mainStyles.textCenter, mainStyles.buttonText]}>Normal</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity disabled={started} style={[mainStyles.button]}
+                        onPress={() => setTimer(tempoParaSegundos(current.timers.hard))}>
+                        <Text style={[mainStyles.textCenter, mainStyles.buttonText]}>Difícil</Text>
+                    </TouchableOpacity>
+                </View>
+
             </View>
+            <TouchableOpacity onPress={next}>
+                <Text>Próximo &gt;</Text>
+            </TouchableOpacity>
         </View>
-        <TouchableOpacity>
-            <Text>Próximo &gt;</Text>
-        </TouchableOpacity>
-    </View>
-    </>
+    )
 }
 
 const styles = StyleSheet.create({
@@ -53,7 +72,7 @@ const styles = StyleSheet.create({
     },
     levelContainer: {
         flexDirection: 'row',
-        alignItems: 'center',
+        justifyContent: 'center',
         width: '100%'
     }
 })
