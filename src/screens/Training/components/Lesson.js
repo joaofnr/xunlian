@@ -4,15 +4,34 @@ import mainStyles from "../../../styles/main";
 import { tempoParaSegundos } from "../../../common/utils/time"
 
 export default function Lesson({current, previous, next}){    
-    if(!current) return <></>
-
+    
     const [timer, setTimer] = useState()
     const [started, setStarted] = useState(false)
+    let timeout
 
-    const handleStartButton = () => {
-        setStarted((current) => !current)
+    useEffect(() => {
+        if(started) {
+            console.log('started')
+            timerControl(timer)
+        } else {
+            console.log('stopped')
+            clearTimeout(timeout)
+            
+        }
+    }, [started])
+
+    const timerControl = (time) => {
+        console.log({timer, started})
+        timeout = setTimeout(() => {
+            if (time > 0) {
+                setTimer(time - 1)
+                return timerControl(time - 1)
+            }
+            console.log('acabou')
+        }, 1000)
     }
     
+    if(!current) return <></>
     return (
         <View style={[mainStyles.container, styles.lessonContainer]}>
             <TouchableOpacity onPress={previous}>
@@ -25,8 +44,10 @@ export default function Lesson({current, previous, next}){
                 </View>
 
                 <TouchableOpacity style={[mainStyles.button, styles.button]}
-                    onPress={handleStartButton}>
-                    <Text style={[mainStyles.textCenter, mainStyles.buttonText]}>Começar</Text>
+                    onPress={() => setStarted(!started)}>
+                    <Text style={[mainStyles.textCenter, mainStyles.buttonText]}>
+                        {started ? 'Parar' : 'Iniciar'}
+                    </Text>
                 </TouchableOpacity>
 
                 <View style={styles.levelContainer}>
